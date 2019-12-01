@@ -1,8 +1,7 @@
 package Main;
 
-import CrudCurso.CursoGUI;
-import CrudUnidadeDeMedida.UnidadeDeMedidaGUI;
-import CrudUnidadeDeMedida.UnidadeDeMedidaGUI;
+import CrudDepartamento.DepartamentoGUI;
+import CrudProfessor.ProfessorGUI;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -30,14 +29,14 @@ import javax.swing.JToolBar;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 import tools.CentroDoMonitorMaior;
 import tools.ManipulaImagem;
-import CrudCurso.Curso;
+import CrudDepartamento.Departamento;
 import tools.Centraliza;
 public class MenuPrincipal extends JFrame {
     
     JFrame cp = new JFrame();
     Font fonte = new Font("Monotype Corsiva", Font.BOLD, 30);
-    JButton btCurso = new JButton();
-    JButton btAluno = new JButton();
+    JButton btDepartamento = new JButton();
+    JButton btProfessor = new JButton();
     JLabel labelComImagemDeTamanhoDiferente = new JLabel();
     JToolBar tool = new JToolBar();
     JPanel paneCentral = new JPanel();
@@ -57,31 +56,31 @@ public class MenuPrincipal extends JFrame {
         //Centraliza centraliza = new Centraliza();
         //centraliza.centralizaComponente(cp);
         
-        btAluno = manipulaImagem.insereBotao(manipulaImagem.criaIcon("/icones/aluno.png", 30, 20), "Cadastrar Aluno");
-        btCurso = manipulaImagem.insereBotao(manipulaImagem.criaIcon("/icones/course.png", 25, 20), "Cadastrar Curso");
+        btProfessor = manipulaImagem.insereBotao(manipulaImagem.criaIcon("/icones/teacher.png", 30, 20), "Cadastrar Professor");
+        btDepartamento = manipulaImagem.insereBotao(manipulaImagem.criaIcon("/icones/department.png", 25, 20), "Cadastrar Departamento");
 
-        tool.add(btCurso);
-        tool.add(btAluno);
+        tool.add(btDepartamento);
+        tool.add(btProfessor);
         tool.setBackground(Color.white);
         cp.add(tool,BorderLayout.NORTH);
         Image bgImg = new ImageIcon(this.getClass().getResource("/icones/logo.jpeg")).getImage();
         paneCentral = new ImagePanel(bgImg);
         cp.add(paneCentral,BorderLayout.CENTER);
         
-        btAluno.addActionListener(new ActionListener() {
+        btProfessor.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent ae) {
-                new UnidadeDeMedidaGUI();
+                new ProfessorGUI(cp);
             }
         });
        
-        btCurso.addActionListener(new ActionListener() {
+        btDepartamento.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent ae) {
                 
-                new CursoGUI(cp);
+                new DepartamentoGUI(cp);
             }
         });
         

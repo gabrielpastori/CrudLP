@@ -1,4 +1,4 @@
-package CrudCurso;
+package CrudDepartamento;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -11,13 +11,13 @@ import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 
 // @author Radames
-public class CursoGUIListagem extends JDialog {
+public class DepartamentoGUIListagem extends JDialog {
 
     JPanel painelTa = new JPanel();
     ScrollPane scroll = new ScrollPane();
     JTextArea ta = new JTextArea();
 
-    public CursoGUIListagem(List<Curso> texto, int posX, int posY) {
+    public DepartamentoGUIListagem(List<Departamento> texto, int posX, int posY) {
         setTitle("Listagem de Produto");
         setSize(500, 180);//tamanho da janela
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);//libera ao sair (tira da memória a classe

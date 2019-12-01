@@ -1,7 +1,7 @@
 //Nome: Gabriel Pastori
 //Curso: Técnico Integrado em Informática - Linguagem de Programação II
 //Código responsável pela geração do código da classe GUI
-package CrudCurso;
+package CrudProfessor;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -28,31 +28,39 @@ import javax.swing.table.DefaultTableModel;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.awt.Color;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import tools.ManipulaImagem;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import tools.Centraliza;
 import tools.DateTextField;
+import tools.JanelaPesquisar;
 import tools.ManipulaArquivo;
-public class CursoGUI extends JDialog {
-    
-    private JDialog f;
+
+public class ProfessorGUI extends JDialog {
+    private JDialog d;
     
     private JPanel cp = new JPanel();
-    private JDialog dialog = new JDialog();
-    private JLabel lbIdCurso = new JLabel("IDCURSO");
-    private JTextField tfIdCurso= new JTextField(20);
+    private JLabel lbIdProfessor = new JLabel("IDPROFESSOR");
+    private JTextField tfIdProfessor= new JTextField(20);
     private JLabel lbNome = new JLabel("Nome");
     private JTextField tfNome= new JTextField(20);
-    private JLabel lbDuracao = new JLabel("Duracao");
-    DateTextField tfDuracao= new DateTextField();
-    private JLabel lbTurno = new JLabel("Turno");
-    private JTextField tfTurno= new JTextField(20);
+    private JLabel lbData_nascimento = new JLabel("Data_nascimento");
+    DateTextField tfData_nascimento= new DateTextField();
+    private JLabel lbData_entrada = new JLabel("Data_entrada");
+    DateTextField tfData_entrada= new DateTextField();
+    private JLabel lbSalario = new JLabel("Salario");
+    private JTextField tfSalario= new JTextField(20);
+    private JLabel lbAtivo = new JLabel("Ativo");
+    private JCheckBox cbAtivo= new JCheckBox("Ativo",false);    private JTextField tfAtivo= new JTextField(20);
     private JLabel lbIdDepartamento = new JLabel("IdDepartamento");
     private JTextField tfIdDepartamento= new JTextField(20);
     private JButton btAdicionar = new JButton("Adicionar");
     private JButton btListar = new JButton("Listar");
     private JButton btBuscar = new JButton("Buscar");
+    private JButton btLocalizar = new JButton("Localizar");
     private JButton btAlterar = new JButton("Alterar");
     private JButton btExcluir = new JButton("Excluir");
     private JButton btSalvar = new JButton("Salvar");
@@ -68,10 +76,10 @@ public class CursoGUI extends JDialog {
     private JScrollPane scrollTabela = new JScrollPane();
     private String acao = "";
     private String chavePrimaria = "";
-    private CursoControle controle = new CursoControle();
+    private ProfessorControle controle = new ProfessorControle();
     private ManipulaImagem manipulaImagem=new ManipulaImagem();
-    private Curso aluno = new Curso();
-    String[] colunas = new String[]{"IdCurso","Nome","Duracao","Turno","IdDepartamento"};
+    private Professor professor = new Professor();
+    String[] colunas = new String[]{"IdProfessor","Nome","Data_nascimento","Data_entrada","Salario","Ativo","IdDepartamento"};
 
     String[][] dados = new String[0][4];
     DefaultTableModel model = new DefaultTableModel(dados, colunas);
@@ -79,32 +87,33 @@ public class CursoGUI extends JDialog {
     private JPanel painel1 = new JPanel(new GridLayout(1, 1));
     private JPanel painel2 = new JPanel(new GridLayout(1, 1));
     private CardLayout cardLayout;
-    private Centraliza centraliza = new Centraliza();
-    public CursoGUI(JFrame pai) {
-        f = new JDialog(pai, "", true);
-        f.getContentPane();
-        f.pack();
+    private Centraliza centraliza= new Centraliza();
+    public ProfessorGUI(JFrame pai) {
+        d = new JDialog(pai, "", true);
+        d.getContentPane();
+        d.pack();
         
-        f.setTitle("CRUD Produtos");
-        f.setSize(600, 800);
-        f.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        f.setLayout(new GridLayout(1,1));
-        
-        
-        String caminhoENomeDoArquivo = "DadosCurso.csv";
-        //cp.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        //cp.setSize(600, 400);
-        //cp.setLocationRelativeTo(null);
-        //cp.setTitle("Curso");
-        //cp.getContentPane();
+        d.setTitle("CRUD Professor");
+        d.setSize(600, 800);
+        d.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        d.setLayout(new GridLayout(1,1));
+        centraliza.centralizaFilho(pai, d);
+        String caminhoENomeDoArquivo = "DadosProfessor.csv";
+        //setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        //setSize(600, 400);
+        //setLocationRelativeTo(null);
+        //setTitle("Professor");
+        //cp = getContentPane();
         cp.setLayout(new BorderLayout());
         cp.add(painelNorte, BorderLayout.NORTH);
         cp.add(painelCentro, BorderLayout.CENTER);
-        cp.add(painelSul, BorderLayout.SOUTH); 
-        f.add(cp);
-        centraliza.centralizaFilho(pai, f);
+        cp.add(painelSul, BorderLayout.SOUTH);
+        d.add(cp);
         ImageIcon icon=manipulaImagem.criaIcon("/icones/retrieve.png", 30, 30);
         btBuscar=manipulaImagem.insereBotao(icon, "Buscar");
+        
+        icon = manipulaImagem.criaIcon("/icones/retrieve_1.png", 30, 30);
+        btLocalizar=manipulaImagem.insereBotao(icon, "Localizar");
         
         icon=manipulaImagem.criaIcon("/icones/list.png", 30, 30);
         btListar=manipulaImagem.insereBotao(icon, "Listar");
@@ -136,32 +145,40 @@ public class CursoGUI extends JDialog {
         painelSul.add(painel2, "Listagem");
         painelNorte.setLayout(new GridLayout(1, 1));
         painelNorte.add(toolBar);
-        painelCentro.setLayout(new GridLayout(4, 2));
+        painelCentro.setLayout(new GridLayout(6, 2));
         painelCentro.add(lbNome);
         painelCentro.add(tfNome);
-        painelCentro.add(lbDuracao);
-        painelCentro.add(tfDuracao);
-        painelCentro.add(lbTurno);
-        painelCentro.add(tfTurno);
+        painelCentro.add(lbData_nascimento);
+        painelCentro.add(tfData_nascimento);
+        painelCentro.add(lbData_entrada);
+        painelCentro.add(tfData_entrada);
+        painelCentro.add(lbSalario);
+        painelCentro.add(tfSalario);
+        painelCentro.add(cbAtivo);
+        painelCentro.add(new JLabel(""));
         painelCentro.add(lbIdDepartamento);
         painelCentro.add(tfIdDepartamento);
-        toolBar.add(lbIdCurso);
-        toolBar.add(tfIdCurso);
+        toolBar.add(lbIdProfessor);
+        toolBar.add(tfIdProfessor);
         toolBar.add(btAdicionar);
         toolBar.add(btBuscar);
+        toolBar.add(btLocalizar);
         toolBar.add(btListar);
         toolBar.add(btAlterar);
         toolBar.add(btExcluir);
         toolBar.add(btSalvar);
         toolBar.add(btCancelar);
+        
         btAdicionar.setVisible(false);
         btAlterar.setVisible(false);
         btExcluir.setVisible(false);
         btSalvar.setVisible(false);
         btCancelar.setVisible(false);
         tfNome.setEditable(false);
-        tfDuracao.setEditable(false);
-        tfTurno.setEditable(false);
+        tfData_nascimento.setEditable(false);
+        tfData_entrada.setEditable(false);
+        tfSalario.setEditable(false);
+        cbAtivo.setEnabled(false);
         tfIdDepartamento.setEditable(false);
         texto.setEditable(false);
         btCarregarDados.addActionListener(new ActionListener() {
@@ -170,14 +187,14 @@ public class CursoGUI extends JDialog {
                 ManipulaArquivo manipulaArquivo = new ManipulaArquivo();
                 if (manipulaArquivo.existeOArquivo(caminhoENomeDoArquivo)) {
                     String aux[];
-                    Curso t;
+                    Professor t;
                     List<String> listaStringCsv = manipulaArquivo.abrirArquivo(caminhoENomeDoArquivo);
                     for (String linha : listaStringCsv) {
                         aux = linha.split(";");
                         SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
                         SimpleDateFormat sdfEua = new SimpleDateFormat("yyyy-MM-dd");
                         try{
-                            t = new Curso(Integer.valueOf(aux[0]),String.valueOf(aux[1]),Date.valueOf(sdfEua.format(formato.parse(aux[2]))),Double.valueOf(aux[3]),Integer.valueOf(aux[4]));
+                            t = new Professor(Integer.valueOf(aux[0]),String.valueOf(aux[1]),Date.valueOf(sdfEua.format(formato.parse(aux[2]))),Date.valueOf(sdfEua.format(formato.parse(aux[3]))),Double.valueOf(aux[4]),Boolean.valueOf(aux[5].equals("true")?true:false),Integer.valueOf(aux[6]));
                             controle.adicionar(t);
                         }catch (Exception err){
                             System.out.println("Deu ruim "+err);
@@ -190,12 +207,12 @@ public class CursoGUI extends JDialog {
         btGravar.addActionListener(new ActionListener() {
            @Override
            public void actionPerformed(ActionEvent e) {
-                List<Curso> listaAluno = controle.listar();
-                List<String> listaAlunoEmFormatoStringCSV = new ArrayList<>();
-                for (Curso t : listaAluno) {
-                   listaAlunoEmFormatoStringCSV.add(t.toString());
+                List<Professor> listaProfessor = controle.listar();
+                List<String> listaProfessorEmFormatoStringCSV = new ArrayList<>();
+                for (Professor t : listaProfessor) {
+                   listaProfessorEmFormatoStringCSV.add(t.toString());
                 }
-                new ManipulaArquivo().salvarArquivo(caminhoENomeDoArquivo, listaAlunoEmFormatoStringCSV);
+                new ManipulaArquivo().salvarArquivo(caminhoENomeDoArquivo, listaProfessorEmFormatoStringCSV);
                 System.out.println("gravou");
             }
         });
@@ -207,27 +224,29 @@ public class CursoGUI extends JDialog {
                 scrollTexto.setViewportView(texto);
                 boolean ok=true;
                 try{
-                    Long.valueOf(tfIdCurso.getText());
+                    Long.valueOf(tfIdProfessor.getText());
                 }catch(Exception er){
-                    JOptionPane.showMessageDialog(cp, "IDCURSO deve ser do tipo int");
+                    JOptionPane.showMessageDialog(cp, "IDPROFESSOR deve ser do tipo int");
                     ok=false;
                 }
-                if(tfIdCurso.getText().trim().isEmpty() || !ok){
-                    if(tfIdCurso.getText().trim().isEmpty()){
-                        JOptionPane.showMessageDialog(cp, "IDCURSO nâo pode ser vazio");
+                if(tfIdProfessor.getText().trim().isEmpty() || !ok){
+                    if(tfIdProfessor.getText().trim().isEmpty()){
+                        JOptionPane.showMessageDialog(cp, "IDPROFESSOR nâo pode ser vazio");
                     }
-                    tfIdCurso.requestFocus();
-                    tfIdCurso.selectAll();
+                    tfIdProfessor.requestFocus();
+                    tfIdProfessor.selectAll();
                 }else{
-                    chavePrimaria = tfIdCurso.getText();
-                    aluno = controle.buscar(tfIdCurso.getText());
-                    if (aluno== null) {
+                    chavePrimaria = tfIdProfessor.getText();
+                    professor = controle.buscar(tfIdProfessor.getText());
+                    if (professor== null) {
                         btAdicionar.setVisible(true);
                         btAlterar.setVisible(false);
                         btExcluir.setVisible(false);
                         tfNome.setText("");
-                        tfDuracao.setText("");
-                        tfTurno.setText("");
+                        tfData_nascimento.setText("");
+                        tfData_entrada.setText("");
+                        tfSalario.setText("");
+                        cbAtivo.setSelected(false);
                         tfIdDepartamento.setText("");
                         texto.setText("Não encontrou na lista - pode Adicionar\n\n\n");
                     }else{
@@ -235,13 +254,17 @@ public class CursoGUI extends JDialog {
                         texto.setText("Encontrou na lista - pode Alterar ou Excluir\n\n\n");
                         btAlterar.setVisible(true);
                         btExcluir.setVisible(true);
-                        tfNome.setText(String.valueOf(aluno.getNome()));
+                        tfNome.setText(String.valueOf(professor.getNome()));
                         tfNome.setEditable(false);
-                        tfDuracao.setText(formato.format(aluno.getDuracao()));
-                        tfDuracao.setEditable(false);
-                        tfTurno.setText(String.valueOf(aluno.getTurno()));
-                        tfTurno.setEditable(false);
-                        tfIdDepartamento.setText(String.valueOf(aluno.getIdDepartamento()));
+                        tfData_nascimento.setText(formato.format(professor.getData_nascimento()));
+                        tfData_nascimento.setEditable(false);
+                        tfData_entrada.setText(formato.format(professor.getData_entrada()));
+                        tfData_entrada.setEditable(false);
+                        tfSalario.setText(String.valueOf(professor.getSalario()));
+                        tfSalario.setEditable(false);
+                        cbAtivo.setSelected(professor.getAtivo());
+                        cbAtivo.setEnabled(false);
+                        tfIdDepartamento.setText(String.valueOf(professor.getIdDepartamento()));
                         tfIdDepartamento.setEditable(false);
                     }
                 }
@@ -251,12 +274,14 @@ public class CursoGUI extends JDialog {
            @Override
            public void actionPerformed(ActionEvent e) {
                 acao = "adicionar";
-                tfIdCurso.setText(chavePrimaria);
+                tfIdProfessor.setText(chavePrimaria);
                 tfNome.setEditable(true);
-                tfDuracao.setEditable(true);
-                tfTurno.setEditable(true);
+                tfData_nascimento.setEditable(true);
+                tfData_entrada.setEditable(true);
+                tfSalario.setEditable(true);
+                cbAtivo.setEnabled(true);
                 tfIdDepartamento.setEditable(true);
-                tfIdCurso.setEditable(false);
+                tfIdProfessor.setEditable(false);
                 btSalvar.setVisible(true);
                 btCancelar.setVisible(true);
                 btBuscar.setVisible(false);
@@ -264,6 +289,7 @@ public class CursoGUI extends JDialog {
                 btAlterar.setVisible(false);
                 btExcluir.setVisible(false);
                 btAdicionar.setVisible(false);
+                btLocalizar.setVisible(false);
                 texto.setText("Preencha os atributos\n\n\n\n\n");
             }
         });
@@ -271,8 +297,8 @@ public class CursoGUI extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 acao = "alterar";
-                tfIdCurso.setText(chavePrimaria);
-                tfIdCurso.setEditable(false);
+                tfIdProfessor.setText(chavePrimaria);
+                tfIdProfessor.setEditable(false);
                 tfNome.requestFocus();
                 btSalvar.setVisible(true);
                 btCancelar.setVisible(true);
@@ -280,10 +306,13 @@ public class CursoGUI extends JDialog {
                 btListar.setVisible(false);
                 btAlterar.setVisible(false);
                 btExcluir.setVisible(false);
+                btLocalizar.setVisible(false);
                 texto.setText("Preencha os atributos\n\n\n\n\n");
                 tfNome.setEditable(true);
-                tfDuracao.setEditable(true);
-                tfTurno.setEditable(true);
+                tfData_nascimento.setEditable(true);
+                tfData_entrada.setEditable(true);
+                tfSalario.setEditable(true);
+                cbAtivo.setEnabled(true);
                 tfIdDepartamento.setEditable(true);
             }
         });
@@ -294,17 +323,22 @@ public class CursoGUI extends JDialog {
                 btCancelar.setVisible(false);
                 btBuscar.setVisible(true);
                 btListar.setVisible(true);
-                tfIdCurso.setEditable(true);
+                btLocalizar.setVisible(true);
+                tfIdProfessor.setEditable(true);
                 tfNome.setText("");
                 tfNome.setEditable(false);
-                tfDuracao.setText("");
-                tfDuracao.setEditable(false);
-                tfTurno.setText("");
-                tfTurno.setEditable(false);
+                tfData_nascimento.setText("");
+                tfData_nascimento.setEditable(false);
+                tfData_entrada.setText("");
+                tfData_entrada.setEditable(false);
+                tfSalario.setText("");
+                tfSalario.setEditable(false);
+                cbAtivo.setSelected(false);
+                cbAtivo.setEnabled(false);
                 tfIdDepartamento.setText("");
                 tfIdDepartamento.setEditable(false);
-                tfIdCurso.requestFocus();
-                tfIdCurso.selectAll();
+                tfIdProfessor.requestFocus();
+                tfIdProfessor.selectAll();
                 texto.setText("Cancelou\n\n\n\n\n");
             }
         });
@@ -313,11 +347,11 @@ public class CursoGUI extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 boolean ok=true;
                 if (acao.equals("alterar")) {
-                    Curso alunoAntigo = aluno;
+                    Professor professorAntigo = professor;
                     SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
                     SimpleDateFormat sdfEua = new SimpleDateFormat("yyyy-MM-dd");
                     try{
-                        aluno.setNome(String.valueOf(tfNome.getText()));
+                        professor.setNome(String.valueOf(tfNome.getText()));
                         lbNome.setForeground(new Color(51,51,51));
                     }catch(Exception er){
                         lbNome.setForeground(Color.red);
@@ -325,23 +359,39 @@ public class CursoGUI extends JDialog {
                         ok=false;
                     }
                     try{
-                        aluno.setDuracao(Date.valueOf(sdfEua.format(formato.parse(tfDuracao.getText()))));
-                        lbDuracao.setForeground(new Color(51,51,51));
+                        professor.setData_nascimento(Date.valueOf(sdfEua.format(formato.parse(tfData_nascimento.getText()))));
+                        lbData_nascimento.setForeground(new Color(51,51,51));
                     }catch(Exception er){
-                        lbDuracao.setForeground(Color.red);
-                        JOptionPane.showMessageDialog(cp, "No campo Duracao deve ser inserido um dado do tipo: Date");
+                        lbData_nascimento.setForeground(Color.red);
+                        JOptionPane.showMessageDialog(cp, "No campo Data_nascimento deve ser inserido um dado do tipo: Date");
                         ok=false;
                     }
                     try{
-                        aluno.setTurno(Double.valueOf(tfTurno.getText()));
-                        lbTurno.setForeground(new Color(51,51,51));
+                        professor.setData_entrada(Date.valueOf(sdfEua.format(formato.parse(tfData_entrada.getText()))));
+                        lbData_entrada.setForeground(new Color(51,51,51));
                     }catch(Exception er){
-                        lbTurno.setForeground(Color.red);
-                        JOptionPane.showMessageDialog(cp, "No campo Turno deve ser inserido um dado do tipo: double");
+                        lbData_entrada.setForeground(Color.red);
+                        JOptionPane.showMessageDialog(cp, "No campo Data_entrada deve ser inserido um dado do tipo: Date");
                         ok=false;
                     }
                     try{
-                        aluno.setIdDepartamento(Integer.valueOf(tfIdDepartamento.getText()));
+                        professor.setSalario(Double.valueOf(tfSalario.getText()));
+                        lbSalario.setForeground(new Color(51,51,51));
+                    }catch(Exception er){
+                        lbSalario.setForeground(Color.red);
+                        JOptionPane.showMessageDialog(cp, "No campo Salario deve ser inserido um dado do tipo: double");
+                        ok=false;
+                    }
+                    try{
+                        professor.setAtivo(cbAtivo.isSelected());
+                        lbAtivo.setForeground(new Color(51,51,51));
+                    }catch(Exception er){
+                        lbAtivo.setForeground(Color.red);
+                        JOptionPane.showMessageDialog(cp, "No campo Ativo deve ser inserido um dado do tipo: boolean");
+                        ok=false;
+                    }
+                    try{
+                        professor.setIdDepartamento(Integer.valueOf(tfIdDepartamento.getText()));
                         lbIdDepartamento.setForeground(new Color(51,51,51));
                     }catch(Exception er){
                         lbIdDepartamento.setForeground(Color.red);
@@ -349,23 +399,23 @@ public class CursoGUI extends JDialog {
                         ok=false;
                     }
                     if(ok){
-                        controle.alterar(aluno, alunoAntigo);
+                        controle.alterar(professor, professorAntigo);
                         texto.setText("Registro alterado\n\n\n\n\n");
                     }
                 }else{
-                    aluno= new Curso();
+                    professor= new Professor();
                     SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
                     SimpleDateFormat sdfEua = new SimpleDateFormat("yyyy-MM-dd");
                     try{
-                        aluno.setIdCurso(Integer.valueOf(tfIdCurso.getText()));
-                        lbIdCurso.setForeground(new Color(51,51,51));
+                        professor.setIdProfessor(Integer.valueOf(tfIdProfessor.getText()));
+                        lbIdProfessor.setForeground(new Color(51,51,51));
                     }catch(Exception er){
-                        lbIdCurso.setForeground(Color.red);
-                        JOptionPane.showMessageDialog(cp, "No campo IdCurso deve ser inserido um dado do tipo: int");
+                        lbIdProfessor.setForeground(Color.red);
+                        JOptionPane.showMessageDialog(cp, "No campo IdProfessor deve ser inserido um dado do tipo: int");
                         ok=false;
                     }
                     try{
-                        aluno.setNome(String.valueOf(tfNome.getText()));
+                        professor.setNome(String.valueOf(tfNome.getText()));
                         lbNome.setForeground(new Color(51,51,51));
                     }catch(Exception er){
                         lbNome.setForeground(Color.red);
@@ -373,23 +423,39 @@ public class CursoGUI extends JDialog {
                         ok=false;
                     }
                     try{
-                        aluno.setDuracao(Date.valueOf(sdfEua.format(formato.parse(tfDuracao.getText()))));
-                        lbDuracao.setForeground(new Color(51,51,51));
+                        professor.setData_nascimento(Date.valueOf(sdfEua.format(formato.parse(tfData_nascimento.getText()))));
+                        lbData_nascimento.setForeground(new Color(51,51,51));
                     }catch(Exception er){
-                        lbDuracao.setForeground(Color.red);
-                        JOptionPane.showMessageDialog(cp, "No campo Duracao deve ser inserido um dado do tipo: Date");
+                        lbData_nascimento.setForeground(Color.red);
+                        JOptionPane.showMessageDialog(cp, "No campo Data_nascimento deve ser inserido um dado do tipo: Date");
                         ok=false;
                     }
                     try{
-                        aluno.setTurno(Double.valueOf(tfTurno.getText()));
-                        lbTurno.setForeground(new Color(51,51,51));
+                        professor.setData_entrada(Date.valueOf(sdfEua.format(formato.parse(tfData_entrada.getText()))));
+                        lbData_entrada.setForeground(new Color(51,51,51));
                     }catch(Exception er){
-                        lbTurno.setForeground(Color.red);
-                        JOptionPane.showMessageDialog(cp, "No campo Turno deve ser inserido um dado do tipo: double");
+                        lbData_entrada.setForeground(Color.red);
+                        JOptionPane.showMessageDialog(cp, "No campo Data_entrada deve ser inserido um dado do tipo: Date");
                         ok=false;
                     }
                     try{
-                        aluno.setIdDepartamento(Integer.valueOf(tfIdDepartamento.getText()));
+                        professor.setSalario(Double.valueOf(tfSalario.getText()));
+                        lbSalario.setForeground(new Color(51,51,51));
+                    }catch(Exception er){
+                        lbSalario.setForeground(Color.red);
+                        JOptionPane.showMessageDialog(cp, "No campo Salario deve ser inserido um dado do tipo: double");
+                        ok=false;
+                    }
+                    try{
+                        professor.setAtivo(cbAtivo.isSelected());
+                        lbAtivo.setForeground(new Color(51,51,51));
+                    }catch(Exception er){
+                        lbAtivo.setForeground(Color.red);
+                        JOptionPane.showMessageDialog(cp, "No campo Ativo deve ser inserido um dado do tipo: boolean");
+                        ok=false;
+                    }
+                    try{
+                        professor.setIdDepartamento(Integer.valueOf(tfIdDepartamento.getText()));
                         lbIdDepartamento.setForeground(new Color(51,51,51));
                     }catch(Exception er){
                         lbIdDepartamento.setForeground(Color.red);
@@ -397,7 +463,7 @@ public class CursoGUI extends JDialog {
                         ok=false;
                     }
                     if(ok){
-                        controle.adicionar(aluno);
+                        controle.adicionar(professor);
                         texto.setText("Foi adicionado um novo registro\n\n\n\n\n");
                         btAlterar.setVisible(true);
                         btExcluir.setVisible(true);
@@ -408,16 +474,21 @@ public class CursoGUI extends JDialog {
                     btCancelar.setVisible(false);
                     btBuscar.setVisible(true);
                     btListar.setVisible(true);
-                    tfIdCurso.setEditable(true);
-                    tfIdCurso.requestFocus();
-                    tfIdCurso.selectAll();
+                    btLocalizar.setVisible(true);
+                    tfIdProfessor.setEditable(true);
+                    tfIdProfessor.requestFocus();
+                    tfIdProfessor.selectAll();
                     tfNome.setText("");
-                    tfDuracao.setText("");
-                    tfTurno.setText("");
+                    tfData_nascimento.setText("");
+                    tfData_entrada.setText("");
+                    tfSalario.setText("");
+                    cbAtivo.setSelected(false);
                     tfIdDepartamento.setText("");
                     tfNome.setEditable(false);
-                    tfDuracao.setEditable(false);
-                    tfTurno.setEditable(false);
+                    tfData_nascimento.setEditable(false);
+                    tfData_entrada.setEditable(false);
+                    tfSalario.setEditable(false);
+                    cbAtivo.setEnabled(false);
                     tfIdDepartamento.setEditable(false);
                 }
             }
@@ -425,8 +496,8 @@ public class CursoGUI extends JDialog {
         btListar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                List<Curso> lt = controle.listar();
-                String[] colunas = {"IdCurso","Nome","Duracao","Turno","IdDepartamento"};
+                List<Professor> lt = controle.listar();
+                String[] colunas = {"IdProfessor","Nome","Data_nascimento","Data_entrada","Salario","Ativo","IdDepartamento"};
                 Object[][] dados = new Object[lt.size()][colunas.length];
                 String aux[];
                 for (int i = 0; i < lt.size(); i++) {
@@ -449,39 +520,83 @@ public class CursoGUI extends JDialog {
         btExcluir.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                tfIdCurso.setText(chavePrimaria);
+                tfIdProfessor.setText(chavePrimaria);
                 if (JOptionPane.YES_OPTION
                         == JOptionPane.showConfirmDialog(null,
-                                "Confirma a exclusão do registro <Nome = " + aluno.getNome() + ">?", "Confirm",
+                                "Confirma a exclusão do registro <Nome = " + professor.getNome() + ">?", "Confirm",
                                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)) {
-                    controle.excluir(aluno);
-                    texto.setText("Excluiu o registro de " + aluno.getIdCurso() + " - " + aluno.getNome() + "\n\n\n\n\n");                }
-                else texto.setText("Não excluiu o registro de " + aluno.getIdCurso() + " - " + aluno.getNome() + "\n\n\n\n\n");
+                    controle.excluir(professor);
+                    texto.setText("Excluiu o registro de " + professor.getIdProfessor() + " - " + professor.getNome() + "\n\n\n\n\n");                }
+                else texto.setText("Não excluiu o registro de " + professor.getIdProfessor() + " - " + professor.getNome() + "\n\n\n\n\n");
                 btBuscar.setVisible(true);
                 btListar.setVisible(true);
                 btExcluir.setVisible(false);
                 btAlterar.setVisible(false);
-                tfIdCurso.requestFocus();
-                tfIdCurso.selectAll();
-                tfIdCurso.setText("");
+                tfIdProfessor.requestFocus();
+                tfIdProfessor.selectAll();
+                tfIdProfessor.setText("");
                 tfNome.setText("");
-                tfDuracao.setText("");
-                tfTurno.setText("");
+                tfData_nascimento.setText("");
+                tfData_entrada.setText("");
+                tfSalario.setText("");
+                cbAtivo.setSelected(false);
+                cbAtivo.setEnabled(true);
                 tfIdDepartamento.setText("");
             }
         });
-        f.addWindowListener(new WindowAdapter() {
+        tfIdDepartamento.addMouseListener(new MouseAdapter() {
+            String[] nomeColuna = {"IdDepartamento","Nome","Sigla","CustoMensal","Senha"};
+            @Override
+            public void mouseClicked(MouseEvent e){
+                ManipulaArquivo manipulaArquivo = new ManipulaArquivo();
+                List<String> listaAuxiliar = manipulaArquivo.abrirArquivo("DadosDepartamento.csv");
+                if (listaAuxiliar.size() > 0) {
+                    Point lc = tfIdDepartamento.getLocationOnScreen();
+                    lc.x = lc.x + tfIdDepartamento.getWidth();
+                    String selectedItem = new JanelaPesquisar(listaAuxiliar, lc.x,
+                            lc.y, nomeColuna).getValorRetornado();
+                    if (!selectedItem.equals("")) {
+                        String[] aux = selectedItem.split(";");
+                        tfIdDepartamento.setText(aux[0]);
+                    } else {
+                        tfIdDepartamento.requestFocus();
+                        tfIdDepartamento.selectAll();
+                    }
+                }
+            }
+        });
+        btLocalizar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                List<String> listaAuxiliar = controle.listStrings();
+                if (listaAuxiliar.size() > 0) {
+                    Point lc = btLocalizar.getLocationOnScreen();
+                    lc.x = lc.x + btLocalizar.getWidth();
+                    String selectedItem = new JanelaPesquisar(listaAuxiliar,
+                            lc.x,
+                            lc.y,
+                            colunas).getValorRetornado();
+                    if(!selectedItem.equals("")){
+                        String[] aux = selectedItem.split(";");
+                        tfIdDepartamento.setText(aux[0]);
+                        btBuscar.doClick();
+                    } else {
+                        tfIdDepartamento.requestFocus();
+                        tfIdDepartamento.selectAll();
+                    }
+                }
+            }
+        });
+        d.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 //antes de sair, salvar a lista em disco
                 btGravar.doClick();
                 // Sai da classe
-                f.dispose();
+                d.dispose();
             }
         });
-        f.setVisible(true);
         btCarregarDados.doClick();
-        //cp.setVisible(true);
+        d.setVisible(true);
     }
 }
-
