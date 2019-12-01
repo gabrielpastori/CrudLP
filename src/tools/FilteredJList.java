@@ -17,10 +17,10 @@ public class FilteredJList extends JList {
 
     public FilteredJList(Container container) {
         super();
-        
+
         setModel(new FilterModel());
         filterField = new FilterField(DEFAULT_FIELD_WIDTH);
-        setLocale(new Locale("pt","Br"));
+        setLocale(new Locale("pt", "Br"));
     }
 
     public void setModel(ListModel m) {
@@ -38,8 +38,6 @@ public class FilteredJList extends JList {
         return filterField;
     }
 
-   
-
     // inner class to provide filtered model
     class FilterModel extends AbstractListModel {
 
@@ -55,7 +53,7 @@ public class FilteredJList extends JList {
         @Override
         public Object getElementAt(int index) {
             if (index < filterItems.size()) {
-                return filterItems.get(index);
+                return filterItems.get(index);//pesquisa pela
             } else {
                 return null;
             }

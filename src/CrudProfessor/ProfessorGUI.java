@@ -28,13 +28,24 @@ import javax.swing.table.DefaultTableModel;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import javax.imageio.ImageIO;
 import tools.ManipulaImagem;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import tools.Centraliza;
+import tools.CopiaImagem;
 import tools.DateTextField;
 import tools.JanelaPesquisar;
 import tools.ManipulaArquivo;
@@ -54,6 +65,7 @@ public class ProfessorGUI extends JDialog {
     private JLabel lbSalario = new JLabel("Salario");
     private JTextField tfSalario= new JTextField(20);
     private JLabel lbAtivo = new JLabel("Ativo");
+    private JLabel lbFotoProfessor = new JLabel();
     private JCheckBox cbAtivo= new JCheckBox("Ativo",false);    private JTextField tfAtivo= new JTextField(20);
     private JLabel lbIdDepartamento = new JLabel("IdDepartamento");
     private JTextField tfIdDepartamento= new JTextField(20);
@@ -71,6 +83,7 @@ public class ProfessorGUI extends JDialog {
     private JPanel painelNorte = new JPanel();
     private JPanel painelCentro = new JPanel();
     private JPanel painelSul = new JPanel();
+    private JPanel painelLeste = new JPanel();
     private JTextArea texto = new JTextArea();
     private JScrollPane scrollTexto = new JScrollPane();
     private JScrollPane scrollTabela = new JScrollPane();
@@ -88,6 +101,8 @@ public class ProfessorGUI extends JDialog {
     private JPanel painel2 = new JPanel(new GridLayout(1, 1));
     private CardLayout cardLayout;
     private Centraliza centraliza= new Centraliza();
+    private CopiaImagem copia = new CopiaImagem();
+    private ManipulaArquivo manipulaArquivo = new ManipulaArquivo();
     public ProfessorGUI(JFrame pai) {
         d = new JDialog(pai, "", true);
         d.getContentPane();
@@ -108,8 +123,14 @@ public class ProfessorGUI extends JDialog {
         cp.add(painelNorte, BorderLayout.NORTH);
         cp.add(painelCentro, BorderLayout.CENTER);
         cp.add(painelSul, BorderLayout.SOUTH);
+        cp.add(painelLeste,BorderLayout.EAST);
+        painelLeste.setLayout(new GridLayout(1,1));
+        painelLeste.add(lbFotoProfessor);
+        lbFotoProfessor.setVisible(true);
+        ImageIcon icon=manipulaImagem.criaIcon("/fotos/professorPadrao.png", 200, 200);
+        lbFotoProfessor.setIcon(icon);
         d.add(cp);
-        ImageIcon icon=manipulaImagem.criaIcon("/icones/retrieve.png", 30, 30);
+        icon=manipulaImagem.criaIcon("/icones/retrieve.png", 30, 30);
         btBuscar=manipulaImagem.insereBotao(icon, "Buscar");
         
         icon = manipulaImagem.criaIcon("/icones/retrieve_1.png", 30, 30);
@@ -181,6 +202,8 @@ public class ProfessorGUI extends JDialog {
         cbAtivo.setEnabled(false);
         tfIdDepartamento.setEditable(false);
         texto.setEditable(false);
+        lbFotoProfessor.setEnabled(false);
+        painelLeste.setEnabled(false);
         btCarregarDados.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -222,6 +245,7 @@ public class ProfessorGUI extends JDialog {
                 btAdicionar.setVisible(false);
                 cardLayout.show(painelSul, "Avisos");
                 scrollTexto.setViewportView(texto);
+                
                 boolean ok=true;
                 try{
                     Long.valueOf(tfIdProfessor.getText());
@@ -248,6 +272,18 @@ public class ProfessorGUI extends JDialog {
                         tfSalario.setText("");
                         cbAtivo.setSelected(false);
                         tfIdDepartamento.setText("");
+                        
+                        String origem = "/home/victor/NetBeansProjects/ProjetoFinal/src/fotos/professorPadrao.png";
+                        File img = new File(origem);
+                        ImageIcon icone = new javax.swing.ImageIcon(img.getAbsolutePath());
+                        icone = new ImageIcon(img.getAbsolutePath());
+
+                        Image imagemAux;
+                        imagemAux = icone.getImage();
+                        icone.setImage(imagemAux.getScaledInstance(200, 200, Image.SCALE_FAST));
+                        lbFotoProfessor.setIcon(icone);
+                        lbFotoProfessor.setEnabled(false);
+                        painelLeste.setEnabled(false);
                         texto.setText("Não encontrou na lista - pode Adicionar\n\n\n");
                     }else{
                         SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
@@ -264,6 +300,27 @@ public class ProfessorGUI extends JDialog {
                         tfSalario.setEditable(false);
                         cbAtivo.setSelected(professor.getAtivo());
                         cbAtivo.setEnabled(false);
+                        lbFotoProfessor.setEnabled(true);
+                        painelLeste.setEnabled(false);
+                        
+                        String origem = "/home/victor/NetBeansProjects/ProjetoFinal/src/fotos/"+tfIdProfessor.getText()+".png";
+                        File img = new File(origem);
+                        ImageIcon icone;
+                        if(img.exists()){
+                            icone = new ImageIcon(img.getAbsolutePath());
+                        }else{
+                            origem = "/home/victor/NetBeansProjects/ProjetoFinal/src/fotos/professorPadrao.png";
+                            img = new File(origem);
+                            icone = new javax.swing.ImageIcon(img.getAbsolutePath());
+                            icone = new ImageIcon(img.getAbsolutePath());
+                        }
+                        Image imagemAux;
+                        imagemAux = icone.getImage();
+                        icone.setImage(imagemAux.getScaledInstance(200, 200, Image.SCALE_FAST));
+                        lbFotoProfessor.setIcon(icone);
+                        
+                        
+                       
                         tfIdDepartamento.setText(String.valueOf(professor.getIdDepartamento()));
                         tfIdDepartamento.setEditable(false);
                     }
@@ -290,6 +347,10 @@ public class ProfessorGUI extends JDialog {
                 btExcluir.setVisible(false);
                 btAdicionar.setVisible(false);
                 btLocalizar.setVisible(false);
+                lbFotoProfessor.setEnabled(true);
+                painelLeste.setEnabled(true);
+                ImageIcon foto = manipulaImagem.criaIcon("/fotos/professorPadrao.png", 200, 200);
+                lbFotoProfessor.setIcon(foto);
                 texto.setText("Preencha os atributos\n\n\n\n\n");
             }
         });
@@ -307,8 +368,25 @@ public class ProfessorGUI extends JDialog {
                 btAlterar.setVisible(false);
                 btExcluir.setVisible(false);
                 btLocalizar.setVisible(false);
+                lbFotoProfessor.setEnabled(true);
+                painelLeste.setEnabled(true);
                 texto.setText("Preencha os atributos\n\n\n\n\n");
                 tfNome.setEditable(true);
+                String origem = "/home/victor/NetBeansProjects/ProjetoFinal/src/fotos/"+tfIdProfessor.getText()+".png";
+                File img = new File(origem);
+                ImageIcon icone;
+                if(img.exists()){
+                    icone = new ImageIcon(img.getAbsolutePath());
+                }else{
+                    origem = "/home/victor/NetBeansProjects/ProjetoFinal/src/fotos/professorPadrao.png";
+                    img = new File(origem);
+                    icone = new javax.swing.ImageIcon(img.getAbsolutePath());
+                    icone = new ImageIcon(img.getAbsolutePath());
+                }
+                Image imagemAux;
+                imagemAux = icone.getImage();
+                icone.setImage(imagemAux.getScaledInstance(200, 200, Image.SCALE_FAST));
+                lbFotoProfessor.setIcon(icone);
                 tfData_nascimento.setEditable(true);
                 tfData_entrada.setEditable(true);
                 tfSalario.setEditable(true);
@@ -337,9 +415,14 @@ public class ProfessorGUI extends JDialog {
                 cbAtivo.setEnabled(false);
                 tfIdDepartamento.setText("");
                 tfIdDepartamento.setEditable(false);
+                lbFotoProfessor.setEnabled(false);
+                painelLeste.setEnabled(false);
                 tfIdProfessor.requestFocus();
                 tfIdProfessor.selectAll();
+                ImageIcon foto = manipulaImagem.criaIcon("/fotos/professorPadrao.png", 200, 200);
+                lbFotoProfessor.setIcon(foto);
                 texto.setText("Cancelou\n\n\n\n\n");
+                
             }
         });
         btSalvar.addActionListener(new ActionListener() {
@@ -476,6 +559,8 @@ public class ProfessorGUI extends JDialog {
                     btListar.setVisible(true);
                     btLocalizar.setVisible(true);
                     tfIdProfessor.setEditable(true);
+                    lbFotoProfessor.setEnabled(false);
+                    painelLeste.setEnabled(false);
                     tfIdProfessor.requestFocus();
                     tfIdProfessor.selectAll();
                     tfNome.setText("");
@@ -490,6 +575,8 @@ public class ProfessorGUI extends JDialog {
                     tfSalario.setEditable(false);
                     cbAtivo.setEnabled(false);
                     tfIdDepartamento.setEditable(false);
+                    ImageIcon foto = manipulaImagem.criaIcon("/fotos/professorPadrao.png", 200, 200);
+                    lbFotoProfessor.setIcon(foto);
                 }
             }
         });
@@ -532,6 +619,8 @@ public class ProfessorGUI extends JDialog {
                 btListar.setVisible(true);
                 btExcluir.setVisible(false);
                 btAlterar.setVisible(false);
+                ImageIcon foto = manipulaImagem.criaIcon("/fotos/professorPadrao.png", 200, 200);
+                lbFotoProfessor.setIcon(foto);
                 tfIdProfessor.requestFocus();
                 tfIdProfessor.selectAll();
                 tfIdProfessor.setText("");
@@ -539,6 +628,8 @@ public class ProfessorGUI extends JDialog {
                 tfData_nascimento.setText("");
                 tfData_entrada.setText("");
                 tfSalario.setText("");
+                tfIdProfessor.setEditable(true);
+                lbFotoProfessor.setEnabled(false);
                 cbAtivo.setSelected(false);
                 cbAtivo.setEnabled(true);
                 tfIdDepartamento.setText("");
@@ -566,6 +657,7 @@ public class ProfessorGUI extends JDialog {
             }
         });
         btLocalizar.addActionListener(new ActionListener() {
+            String[] nomeColuna = {"IdProfessor","Nome","Data_nascimento","Data_entrada","Salario","Ativo","IdDepartamento"};
             @Override
             public void actionPerformed(ActionEvent ae) {
                 List<String> listaAuxiliar = controle.listStrings();
@@ -575,14 +667,56 @@ public class ProfessorGUI extends JDialog {
                     String selectedItem = new JanelaPesquisar(listaAuxiliar,
                             lc.x,
                             lc.y,
-                            colunas).getValorRetornado();
+                            nomeColuna).getValorRetornado();
                     if(!selectedItem.equals("")){
                         String[] aux = selectedItem.split(";");
-                        tfIdDepartamento.setText(aux[0]);
+                        tfIdProfessor.setText(aux[0]);
                         btBuscar.doClick();
                     } else {
-                        tfIdDepartamento.requestFocus();
-                        tfIdDepartamento.selectAll();
+                        tfIdProfessor.requestFocus();
+                        tfIdProfessor.selectAll();
+                    }
+                }
+            }
+        });
+        lbFotoProfessor.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (acao.equals("alterar")||acao.equals("adicionar")) {
+                    JFileChooser fc = new JFileChooser();
+                    fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                    if (fc.showOpenDialog(cp) == JFileChooser.APPROVE_OPTION) {
+                        File img = fc.getSelectedFile();
+                        String origem = fc.getSelectedFile().getAbsolutePath();
+                        String aux1[]=origem.split("/");
+                        String aux2=aux1[aux1.length-1];
+                        aux1 = aux2.split("\\.");
+                        
+                        try {
+                            ImageIcon icone = new javax.swing.ImageIcon(img.getAbsolutePath());
+                            Image imagemAux;
+                            imagemAux = icone.getImage();
+                            icone.setImage(imagemAux.getScaledInstance(200, 200, Image.SCALE_FAST));
+                            lbFotoProfessor.setIcon(icone);
+                            
+
+                            String destino = "/home/victor/NetBeansProjects/ProjetoFinal/src/fotos/" + String.valueOf(tfIdProfessor.getText()) + ".png";
+                            File inputFile = new File(img.getAbsolutePath());
+                            File outputFile = new File(destino);
+                            try (InputStream is = new FileInputStream(inputFile)) {
+                                BufferedImage image = ImageIO.read(is);
+                                try (OutputStream os = new FileOutputStream(outputFile)) {
+                                    ImageIO.write(image, "png", os);
+                                } catch (Exception exp) {
+                                    exp.printStackTrace();
+                                }
+                            } catch (Exception exp) {
+                                exp.printStackTrace();
+                            }
+                            //copia.copiar(origem, destino);
+                        } catch (Exception ex){
+                            System.out.println("Erro: " + ex.getMessage());
+                        }
                     }
                 }
             }

@@ -32,6 +32,7 @@ import java.awt.Point;
 import tools.ManipulaImagem;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
+import javax.swing.JPasswordField;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 import tools.Centraliza;
 import tools.JanelaPesquisar;
@@ -49,7 +50,7 @@ public class DepartamentoGUI extends JDialog {
     private JLabel lbCustoMensal = new JLabel("CustoMensal");
     private JTextField tfCustoMensal= new JTextField(20);
     private JLabel lbSenha = new JLabel("Senha");
-    private JTextField tfSenha= new JTextField(20);
+    private JPasswordField tfSenha= new JPasswordField(20);
     private JButton btAdicionar = new JButton("Adicionar");
     private JButton btListar = new JButton("Listar");
     private JButton btBuscar = new JButton("Buscar");
@@ -480,6 +481,7 @@ public class DepartamentoGUI extends JDialog {
             }
         });
         btLocalizar.addActionListener(new ActionListener() {
+            String nomeColuna[] = {"IdDepartamento","Nome","Sigla","CustoMensal","Senha"};
             @Override
             public void actionPerformed(ActionEvent ae) {
                 List<String> listaAuxiliar = controle.listStrings();
