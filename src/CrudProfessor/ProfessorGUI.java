@@ -273,7 +273,8 @@ public class ProfessorGUI extends JDialog {
                         cbAtivo.setSelected(false);
                         tfIdDepartamento.setText("");
                         
-                        String origem = "/home/victor/NetBeansProjects/ProjetoFinal/src/fotos/professorPadrao.png";
+                        String origem = new File("").getAbsolutePath();
+                        origem+="/src/fotos/professorPadrao.png";
                         File img = new File(origem);
                         ImageIcon icone = new javax.swing.ImageIcon(img.getAbsolutePath());
                         icone = new ImageIcon(img.getAbsolutePath());
@@ -302,14 +303,15 @@ public class ProfessorGUI extends JDialog {
                         cbAtivo.setEnabled(false);
                         lbFotoProfessor.setEnabled(true);
                         painelLeste.setEnabled(false);
-                        
-                        String origem = "/home/victor/NetBeansProjects/ProjetoFinal/src/fotos/"+tfIdProfessor.getText()+".png";
+                        String origem = new File("").getAbsolutePath();
+                        origem+="/src/fotos/"+tfIdProfessor.getText()+".png";
                         File img = new File(origem);
                         ImageIcon icone;
                         if(img.exists()){
                             icone = new ImageIcon(img.getAbsolutePath());
                         }else{
-                            origem = "/home/victor/NetBeansProjects/ProjetoFinal/src/fotos/professorPadrao.png";
+                            origem = new File("").getAbsolutePath();
+                            origem+="/src/fotos/professorPadrao.png";
                             img = new File(origem);
                             icone = new javax.swing.ImageIcon(img.getAbsolutePath());
                             icone = new ImageIcon(img.getAbsolutePath());
@@ -372,13 +374,15 @@ public class ProfessorGUI extends JDialog {
                 painelLeste.setEnabled(true);
                 texto.setText("Preencha os atributos\n\n\n\n\n");
                 tfNome.setEditable(true);
-                String origem = "/home/victor/NetBeansProjects/ProjetoFinal/src/fotos/"+tfIdProfessor.getText()+".png";
+                String origem = new File("").getAbsolutePath();
+                origem+="/src/fotos/"+tfIdProfessor.getText()+".png";
                 File img = new File(origem);
                 ImageIcon icone;
                 if(img.exists()){
                     icone = new ImageIcon(img.getAbsolutePath());
                 }else{
-                    origem = "/home/victor/NetBeansProjects/ProjetoFinal/src/fotos/professorPadrao.png";
+                    origem = new File("").getAbsolutePath();
+                    origem+="/src/fotos/professorPadrao.png";
                     img = new File(origem);
                     icone = new javax.swing.ImageIcon(img.getAbsolutePath());
                     icone = new ImageIcon(img.getAbsolutePath());
@@ -699,8 +703,8 @@ public class ProfessorGUI extends JDialog {
                             icone.setImage(imagemAux.getScaledInstance(200, 200, Image.SCALE_FAST));
                             lbFotoProfessor.setIcon(icone);
                             
-
-                            String destino = "/home/victor/NetBeansProjects/ProjetoFinal/src/fotos/" + String.valueOf(tfIdProfessor.getText()) + ".png";
+                            String destino = new File("").getAbsolutePath();
+                            destino+="/src/fotos/"+ String.valueOf(tfIdProfessor.getText()) + ".png";
                             File inputFile = new File(img.getAbsolutePath());
                             File outputFile = new File(destino);
                             try (InputStream is = new FileInputStream(inputFile)) {

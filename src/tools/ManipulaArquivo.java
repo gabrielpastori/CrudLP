@@ -1,6 +1,6 @@
+package tools;
 
 // @author Radames
-package tools;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -86,4 +86,3 @@ public class ManipulaArquivo {
         return 0;
     }
 }
-

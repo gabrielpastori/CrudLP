@@ -480,8 +480,9 @@ public class DepartamentoGUI extends JDialog {
                 tfSenha.setText("");
             }
         });
+        
         btLocalizar.addActionListener(new ActionListener() {
-            String nomeColuna[] = {"IdDepartamento","Nome","Sigla","CustoMensal","Senha"};
+            String[] nColuna = {"IdDepartamento","Nome","Sigla","CustoMensal","Senha"};
             @Override
             public void actionPerformed(ActionEvent ae) {
                 List<String> listaAuxiliar = controle.listStrings();
@@ -491,7 +492,7 @@ public class DepartamentoGUI extends JDialog {
                     String selectedItem = new JanelaPesquisar(listaAuxiliar,
                             lc.x,
                             lc.y,
-                            colunas).getValorRetornado();
+                            nColuna).getValorRetornado();
                     if(!selectedItem.equals("")){
                         String[] aux = selectedItem.split(";");
                         tfIdDepartamento.setText(aux[0]);

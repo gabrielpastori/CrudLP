@@ -20,7 +20,6 @@ import javax.swing.JToolBar;
 import javax.swing.RowFilter;
 import javax.swing.RowSorter;
 import javax.swing.ScrollPaneConstants;
-import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.AbstractTableModel;
@@ -202,10 +201,12 @@ public class JanelaPesquisar extends JDialog {
             
             private void update(DocumentEvent de){
                 String text = tf.getText();
+                
                 if(text.trim().length() == 0){
                     rowSorter.setRowFilter(null);
                 } else{
-                    //rowSorter.setRowFilter(RowFilter.regexFilter("^(?i)" + text));
+                    
+                    rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text,1));
                 }
             }
         });

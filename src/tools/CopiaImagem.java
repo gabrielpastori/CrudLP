@@ -1,5 +1,6 @@
 package tools;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -15,6 +16,13 @@ public class CopiaImagem {
 
     public static void copiar(String origem, String destino) {
         //  System.out.println("Origem >"+origem+ " Destino >"+destino);
+        try {
+            File file = new File(destino);
+            file.delete();
+        } catch (Exception e) {
+            System.out.println("passou aqui - copiar");
+        }
+
         try {
             InputStream in;
             in = new FileInputStream(origem);
@@ -39,4 +47,5 @@ public class CopiaImagem {
             System.out.println("Erro na cópia - arquivo não encontrado");
         }
     }
+
 }

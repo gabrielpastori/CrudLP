@@ -1,5 +1,5 @@
-
 package tools;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -314,4 +314,3 @@ public class DateTextField extends JTextField {
         }
     }
 }
-

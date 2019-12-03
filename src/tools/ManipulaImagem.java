@@ -1,15 +1,10 @@
 package tools;
 
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Insets;
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JPanel;
 import javax.swing.border.Border;
 
 public class ManipulaImagem {
@@ -39,8 +34,5 @@ public class ManipulaImagem {
         btTemp.setToolTipText(toolTip);
         return btTemp;
     }
-    
-
-    
  
 }
