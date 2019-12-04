@@ -29,6 +29,8 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import tools.ManipulaImagem;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
@@ -51,6 +53,7 @@ public class DepartamentoGUI extends JDialog {
     private JTextField tfCustoMensal= new JTextField(20);
     private JLabel lbSenha = new JLabel("Senha");
     private JPasswordField tfSenha= new JPasswordField(20);
+    private JCheckBox cbMostrar = new JCheckBox("Mostrar");
     private JButton btAdicionar = new JButton("Adicionar");
     private JButton btListar = new JButton("Listar");
     private JButton btBuscar = new JButton("Buscar");
@@ -65,6 +68,7 @@ public class DepartamentoGUI extends JDialog {
     private JPanel painelNorte = new JPanel();
     private JPanel painelCentro = new JPanel();
     private JPanel painelSul = new JPanel();
+    private JPanel painelSenha = new JPanel();
     private JTextArea texto = new JTextArea();
     private JScrollPane scrollTexto = new JScrollPane();
     private JScrollPane scrollTabela = new JScrollPane();
@@ -103,6 +107,9 @@ public class DepartamentoGUI extends JDialog {
         cp.add(painelCentro, BorderLayout.CENTER);
         cp.add(painelSul, BorderLayout.SOUTH);
         d.add(cp);
+        painelSenha.setLayout(new BorderLayout());
+        painelSenha.add(tfSenha,BorderLayout.CENTER);
+        painelSenha.add(cbMostrar,BorderLayout.EAST);
         ImageIcon icon=manipulaImagem.criaIcon("/icones/retrieve.png", 30, 30);
         btBuscar=manipulaImagem.insereBotao(icon, "Buscar");
         
@@ -149,7 +156,7 @@ public class DepartamentoGUI extends JDialog {
         painelCentro.add(lbCustoMensal);
         painelCentro.add(tfCustoMensal);
         painelCentro.add(lbSenha);
-        painelCentro.add(tfSenha);
+        painelCentro.add(painelSenha);
         toolBar.add(lbIdDepartamento);
         toolBar.add(tfIdDepartamento);
         toolBar.add(btAdicionar);
@@ -170,6 +177,7 @@ public class DepartamentoGUI extends JDialog {
         tfCustoMensal.setEditable(false);
         tfSenha.setEditable(false);
         texto.setEditable(false);
+        cbMostrar.setVisible(false);
         btCarregarDados.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -208,6 +216,7 @@ public class DepartamentoGUI extends JDialog {
         btBuscar.addActionListener(new ActionListener() {
            @Override
            public void actionPerformed(ActionEvent e) {
+                cbMostrar.setVisible(false);
                 btAdicionar.setVisible(false);
                 cardLayout.show(painelSul, "Avisos");
                 scrollTexto.setViewportView(texto);
@@ -216,15 +225,18 @@ public class DepartamentoGUI extends JDialog {
                     Long.valueOf(tfIdDepartamento.getText());
                 }catch(Exception er){
                     JOptionPane.showMessageDialog(cp, "IDDEPARTAMENTO deve ser do tipo int");
+                    lbIdDepartamento.setForeground(Color.red);
                     ok=false;
                 }
                 if(tfIdDepartamento.getText().trim().isEmpty() || !ok){
                     if(tfIdDepartamento.getText().trim().isEmpty()){
                         JOptionPane.showMessageDialog(cp, "IDDEPARTAMENTO nâo pode ser vazio");
+                        lbIdDepartamento.setForeground(Color.red);
                     }
                     tfIdDepartamento.requestFocus();
                     tfIdDepartamento.selectAll();
                 }else{
+                    lbIdDepartamento.setForeground(Color.black);
                     chavePrimaria = tfIdDepartamento.getText();
                     departamento = controle.buscar(tfIdDepartamento.getText());
                     if (departamento== null) {
@@ -258,6 +270,7 @@ public class DepartamentoGUI extends JDialog {
            public void actionPerformed(ActionEvent e) {
                 acao = "adicionar";
                 tfIdDepartamento.setText(chavePrimaria);
+                cbMostrar.setVisible(true);
                 tfNome.setEditable(true);
                 tfSigla.setEditable(true);
                 tfCustoMensal.setEditable(true);
@@ -281,6 +294,7 @@ public class DepartamentoGUI extends JDialog {
                 tfIdDepartamento.setText(chavePrimaria);
                 tfIdDepartamento.setEditable(false);
                 tfNome.requestFocus();
+                cbMostrar.setVisible(true);
                 btSalvar.setVisible(true);
                 btCancelar.setVisible(true);
                 btBuscar.setVisible(false);
@@ -298,6 +312,11 @@ public class DepartamentoGUI extends JDialog {
         btCancelar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                lbNome.setForeground(new Color(51,51,51));
+                lbSigla.setForeground(new Color(51,51,51));
+                lbCustoMensal.setForeground(new Color(51,51,51));
+                lbSenha.setForeground(new Color(51,51,51));
+                tfSenha.setEchoChar('*');
                 btSalvar.setVisible(false);
                 btCancelar.setVisible(false);
                 btBuscar.setVisible(true);
@@ -313,6 +332,8 @@ public class DepartamentoGUI extends JDialog {
                 tfSenha.setText("");
                 tfSenha.setEditable(false);
                 tfIdDepartamento.requestFocus();
+                cbMostrar.setVisible(false);
+                cbMostrar.setSelected(false);
                 tfIdDepartamento.selectAll();
                 texto.setText("Cancelou\n\n\n\n\n");
             }
@@ -321,10 +342,12 @@ public class DepartamentoGUI extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 boolean ok=true;
+                
                 if (acao.equals("alterar")) {
                     Departamento departamentoAntigo = departamento;
                     SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
                     SimpleDateFormat sdfEua = new SimpleDateFormat("yyyy-MM-dd");
+                    
                     try{
                         departamento.setNome(String.valueOf(tfNome.getText()));
                         lbNome.setForeground(new Color(51,51,51));
@@ -361,10 +384,26 @@ public class DepartamentoGUI extends JDialog {
                         controle.alterar(departamento, departamentoAntigo);
                         texto.setText("Registro alterado\n\n\n\n\n");
                     }
+                    if(tfNome.getText().trim().isEmpty()){
+                        JOptionPane.showMessageDialog(cp, "O campo Nome nâo pode ser vazio");
+                        lbNome.setForeground(Color.red);
+                        ok=false;
+                    }
+                    if(tfSigla.getText().trim().isEmpty()){
+                        JOptionPane.showMessageDialog(cp, "O campo Sigla nâo pode ser vazio");
+                        lbSigla.setForeground(Color.red);
+                        ok=false;
+                    }
+                    if(tfSenha.getText().trim().isEmpty()){
+                        JOptionPane.showMessageDialog(cp, "O campo Senha nâo pode ser vazio");
+                        lbSenha.setForeground(Color.red);
+                        ok=false;
+                    }
                 }else{
                     departamento= new Departamento();
                     SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
                     SimpleDateFormat sdfEua = new SimpleDateFormat("yyyy-MM-dd");
+                    
                     try{
                         departamento.setIdDepartamento(Integer.valueOf(tfIdDepartamento.getText()));
                         lbIdDepartamento.setForeground(new Color(51,51,51));
@@ -405,6 +444,21 @@ public class DepartamentoGUI extends JDialog {
                         JOptionPane.showMessageDialog(cp, "No campo Senha deve ser inserido um dado do tipo: String");
                         ok=false;
                     }
+                    if(tfNome.getText().trim().isEmpty()){
+                        JOptionPane.showMessageDialog(cp, "O campo Nome nâo pode ser vazio");
+                        lbNome.setForeground(Color.red);
+                        ok=false;
+                    }
+                    if(tfSigla.getText().trim().isEmpty()){
+                        JOptionPane.showMessageDialog(cp, "O campo Sigla nâo pode ser vazio");
+                        lbSigla.setForeground(Color.red);
+                        ok=false;
+                    }
+                    if(tfSenha.getText().trim().isEmpty()){
+                        JOptionPane.showMessageDialog(cp, "O campo Senha nâo pode ser vazio");
+                        lbSenha.setForeground(Color.red);
+                        ok=false;
+                    }
                     if(ok){
                         controle.adicionar(departamento);
                         texto.setText("Foi adicionado um novo registro\n\n\n\n\n");
@@ -413,6 +467,10 @@ public class DepartamentoGUI extends JDialog {
                     }
                 }
                 if(ok){
+                    lbSenha.setForeground(new Color(51,51,51));
+                    tfSenha.setEchoChar('*');
+                    cbMostrar.setSelected(false);
+                    cbMostrar.setVisible(false);
                     btSalvar.setVisible(false);
                     btCancelar.setVisible(false);
                     btBuscar.setVisible(true);
@@ -501,6 +559,16 @@ public class DepartamentoGUI extends JDialog {
                         tfIdDepartamento.requestFocus();
                         tfIdDepartamento.selectAll();
                     }
+                }
+            }
+        });
+        cbMostrar.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    tfSenha.setEchoChar((char) 0);
+                    
+                } else {
+                    tfSenha.setEchoChar('*'); 
                 }
             }
         });

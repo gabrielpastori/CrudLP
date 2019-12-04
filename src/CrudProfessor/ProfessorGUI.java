@@ -30,6 +30,8 @@ import java.text.SimpleDateFormat;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -39,6 +41,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import javax.activation.MimetypesFileTypeMap;
 import javax.imageio.ImageIO;
 import tools.ManipulaImagem;
 import javax.swing.ImageIcon;
@@ -245,21 +248,28 @@ public class ProfessorGUI extends JDialog {
                 btAdicionar.setVisible(false);
                 cardLayout.show(painelSul, "Avisos");
                 scrollTexto.setViewportView(texto);
-                
+                lbNome.setForeground(new Color(51,51,51));
+                lbData_nascimento.setForeground(new Color(51,51,51));
+                lbData_entrada.setForeground(new Color(51,51,51));
+                lbSalario.setForeground(new Color(51,51,51));
+                lbIdDepartamento.setForeground(new Color(51,51,51));
                 boolean ok=true;
                 try{
                     Long.valueOf(tfIdProfessor.getText());
                 }catch(Exception er){
                     JOptionPane.showMessageDialog(cp, "IDPROFESSOR deve ser do tipo int");
+                    lbIdProfessor.setForeground(Color.red);
                     ok=false;
                 }
                 if(tfIdProfessor.getText().trim().isEmpty() || !ok){
                     if(tfIdProfessor.getText().trim().isEmpty()){
                         JOptionPane.showMessageDialog(cp, "IDPROFESSOR nâo pode ser vazio");
+                        lbIdProfessor.setForeground(Color.red);
                     }
                     tfIdProfessor.requestFocus();
                     tfIdProfessor.selectAll();
                 }else{
+                    lbIdProfessor.setForeground(Color.black);
                     chavePrimaria = tfIdProfessor.getText();
                     professor = controle.buscar(tfIdProfessor.getText());
                     if (professor== null) {
@@ -401,6 +411,11 @@ public class ProfessorGUI extends JDialog {
         btCancelar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                lbNome.setForeground(new Color(51,51,51));
+                lbData_nascimento.setForeground(new Color(51,51,51));
+                lbData_entrada.setForeground(new Color(51,51,51));
+                lbSalario.setForeground(new Color(51,51,51));
+                lbIdDepartamento.setForeground(new Color(51,51,51));
                 btSalvar.setVisible(false);
                 btCancelar.setVisible(false);
                 btBuscar.setVisible(true);
@@ -617,6 +632,12 @@ public class ProfessorGUI extends JDialog {
                                 "Confirma a exclusão do registro <Nome = " + professor.getNome() + ">?", "Confirm",
                                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)) {
                     controle.excluir(professor);
+                    String origem = new File("").getAbsolutePath();
+                    origem += "/src/fotos/" + tfIdProfessor.getText() + ".png";
+                    File img = new File(origem);
+                    if(img.exists()){
+                        img.delete();
+                    }
                     texto.setText("Excluiu o registro de " + professor.getIdProfessor() + " - " + professor.getNome() + "\n\n\n\n\n");                }
                 else texto.setText("Não excluiu o registro de " + professor.getIdProfessor() + " - " + professor.getNome() + "\n\n\n\n\n");
                 btBuscar.setVisible(true);
@@ -639,6 +660,13 @@ public class ProfessorGUI extends JDialog {
                 tfIdDepartamento.setText("");
             }
         });
+        tfIdDepartamento.addKeyListener(new KeyAdapter() {
+            public void keyTyped(KeyEvent e) {
+               e.consume();
+               
+            }
+        });
+
         tfIdDepartamento.addMouseListener(new MouseAdapter() {
             String[] nomeColuna = {"IdDepartamento","Nome","Sigla","CustoMensal","Senha"};
             @Override
@@ -695,31 +723,36 @@ public class ProfessorGUI extends JDialog {
                         String aux1[]=origem.split("/");
                         String aux2=aux1[aux1.length-1];
                         aux1 = aux2.split("\\.");
-                        
-                        try {
-                            ImageIcon icone = new javax.swing.ImageIcon(img.getAbsolutePath());
-                            Image imagemAux;
-                            imagemAux = icone.getImage();
-                            icone.setImage(imagemAux.getScaledInstance(200, 200, Image.SCALE_FAST));
-                            lbFotoProfessor.setIcon(icone);
-                            
-                            String destino = new File("").getAbsolutePath();
-                            destino+="/src/fotos/"+ String.valueOf(tfIdProfessor.getText()) + ".png";
-                            File inputFile = new File(img.getAbsolutePath());
-                            File outputFile = new File(destino);
-                            try (InputStream is = new FileInputStream(inputFile)) {
-                                BufferedImage image = ImageIO.read(is);
-                                try (OutputStream os = new FileOutputStream(outputFile)) {
-                                    ImageIO.write(image, "png", os);
+                        String mimetype= new MimetypesFileTypeMap().getContentType(img);
+                        String type = mimetype.split("/")[0];
+                        if(!type.equals("image")){
+                            JOptionPane.showMessageDialog(cp, "Deve ser inserido uma imagem.");
+                        }else{
+                            try {
+                                ImageIcon icone = new javax.swing.ImageIcon(img.getAbsolutePath());
+                                Image imagemAux;
+                                imagemAux = icone.getImage();
+                                icone.setImage(imagemAux.getScaledInstance(200, 200, Image.SCALE_FAST));
+                                lbFotoProfessor.setIcon(icone);
+
+                                String destino = new File("").getAbsolutePath();
+                                destino+="/src/fotos/"+ String.valueOf(tfIdProfessor.getText()) + ".png";
+                                File inputFile = new File(img.getAbsolutePath());
+                                File outputFile = new File(destino);
+                                try (InputStream is = new FileInputStream(inputFile)) {
+                                    BufferedImage image = ImageIO.read(is);
+                                    try (OutputStream os = new FileOutputStream(outputFile)) {
+                                        ImageIO.write(image, "png", os);
+                                    } catch (Exception exp) {
+                                        exp.printStackTrace();
+                                    }
                                 } catch (Exception exp) {
                                     exp.printStackTrace();
                                 }
-                            } catch (Exception exp) {
-                                exp.printStackTrace();
+                                //copia.copiar(origem, destino);
+                            } catch (Exception ex){
+                                System.out.println("Erro: " + ex.getMessage());
                             }
-                            //copia.copiar(origem, destino);
-                        } catch (Exception ex){
-                            System.out.println("Erro: " + ex.getMessage());
                         }
                     }
                 }
